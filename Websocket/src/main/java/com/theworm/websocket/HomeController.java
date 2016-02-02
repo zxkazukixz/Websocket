@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
@@ -13,8 +14,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.theworm.websocket.model.Map;
 import com.theworm.websocket.service.Greeting;
 import com.theworm.websocket.service.HelloMessage;
+import com.theworm.websocket.service.MapService;
 
 /**
  * Handles requests for the application home page.
@@ -26,6 +29,8 @@ public class HomeController {
 	
 	List<String> listTest = new ArrayList<String>();
 	
+	@Autowired
+	private MapService mapService;
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home(Locale locale, Model model) {
@@ -37,9 +42,10 @@ public class HomeController {
 	 @MessageMapping("/hello")
 	 @SendTo("/topic/greetings")
 	    public Greeting greeting(HelloMessage message) throws Exception {
-		 	listTest.add("Toan");
-		 	listTest.add("Nam");
+		 	List<Map> maps = mapService.getCurrent();
+		 	Map map = new Map("User", message.getLongitude(), message.getLatitude());
+		 	mapService.create(map);
 	        Thread.sleep(3000); // simulated delay
-	        return new Greeting("Hello, " + listTest + "And " + message.getName() + "!");
+	        return new Greeting("Hello, " + maps + "And " + message.getName() + "!");
 	    }
 }

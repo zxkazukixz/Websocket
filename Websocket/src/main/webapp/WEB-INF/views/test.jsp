@@ -5,6 +5,8 @@
 <html>
 <head>
     <title>Hello WebSocket</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?v=3.11&sensor=false" type="text/javascript"></script>
     <spring:url value="/resources/js/sockjs-0.3.4.js" var="sockjs" />
     <spring:url value="/resources/js/stomp.js" var="stomp" />
     <script src="${sockjs}"></script>
@@ -20,6 +22,7 @@
         }
 
         function connect() {
+        	getLocation();
             var socket = new SockJS('/websocket/hello');
             stompClient = Stomp.over(socket);
             stompClient.connect({}, function(frame) {
@@ -41,7 +44,9 @@
 
         function sendName() {
             var name = document.getElementById('name').value;
-            stompClient.send("/hello", {}, JSON.stringify({ 'name': name }));
+            var longitude = document.getElementById('longitude').value;
+            var latitude = document.getElementById('latitude').value;
+            stompClient.send("/hello", {}, JSON.stringify({ 'name': name ,'longitude' :longitude, 'latitude' :latitude}));
         }
 
         function showGreeting(message) {
@@ -50,6 +55,20 @@
             p.style.wordWrap = 'break-word';
             p.appendChild(document.createTextNode(message));
             response.appendChild(p);
+        }
+        
+        //Lấy vị trị hiện tại
+        function getLocation() {
+		    if (navigator.geolocation) {
+		        navigator.geolocation.getCurrentPosition(showPosition);
+		    } else { 
+		        x.innerHTML = "Geolocation is not supported by this browser.";
+		    }
+		}
+		
+        function showPosition(position) {
+        	document.getElementById('longitude').value = position.coords.latitude;
+        	document.getElementById('latitude').value = position.coords.longitude;
         }
     </script>
 </head>
@@ -61,6 +80,10 @@
     <div>
         <button id="connect" onclick="connect();">Connect</button>
         <button id="disconnect" disabled="disabled" onclick="disconnect();">Disconnect</button>
+    </div>
+    <div>
+    	<input type="text" id="longitude" />
+    	<input type="text" id="latitude" />
     </div>
     <div id="conversationDiv">
         <label>What is your name?</label><input type="text" id="name" />

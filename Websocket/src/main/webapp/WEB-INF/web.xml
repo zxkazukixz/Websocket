@@ -29,5 +29,14 @@
 		<servlet-name>appServlet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
-
+	
+	<!-- Other XML Configuration -->
+   <!-- Load by Spring ContextLoaderListener -->
+   <context-param>
+       <param-name>contextConfigLocation</param-name>
+       <param-value>
+          /WEB-INF/data-source-cfg.xml,
+          /WEB-INF/transaction-cfg.xml
+        </param-value>        
+   </context-param>
 </web-app>
